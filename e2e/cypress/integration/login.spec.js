@@ -26,16 +26,16 @@ describe.only('Login', () => {
   //     .should('contain', 'password number can\'t be blank')
   // })
 
-  // it('does not work with wrong credentials', {
-  //   env: {
-  //     invalid_password: 'invalid'
-  //   }
-  // }, () => {
-  //   cy.get('[data-automation-id=phone]').type(`${Cypress.env('user').phone}{enter}`)
-  //   cy.get('[data-automation-id=password]').type("invalid{enter}")
-  //   cy.get('.error-msg')
-  //     .should('contain', 'phone or password is invalid')
-  // })
+  it('does not work with wrong credentials', {
+    env: {
+      invalid_password: 'invalid'
+    }
+  }, () => {
+    cy.get('[data-automation-id=phone]').type(`${Cypress.env('user').phone}{enter}`)
+    cy.get('[data-automation-id=password]').type("invalid{enter}")
+    cy.get('.error-msg')
+      .should('contain', 'phone or password is invalid')
+  })
 
   it('displays home page on successful login', () => {
     // cy.get('[data-automation-id=phone]').type('Cypress.env('user').phone{enter}')
