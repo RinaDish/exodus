@@ -6,37 +6,49 @@ on:
 jobs:
 
   servers-up:
-    name: Setup env and run tests
+    name: 'Setup Env and Run Tests'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - run: |
-          cd ./backend
           git fetch
           git checkout test-ci
-          git pull
+          git pull &
+      - run: |
+          cd ./backend
           npm ci
           sudo npx tsc && node out/src/app.js &
       - run: |
           cd ./frontend
-          git fetch
-          git checkout test-ci 
-          git pull
           npm ci
           npm run dev &
-      - name: Run tests on Chrome
+      - name: 'UI Tests - Chrome'
         uses: cypress-io/github-action@v2
         with:
-          wait-on: 'http://localhost:5000'
-          # wait-on: 'http://localhost:5000, http://localhost:8081' #uncomment when backend returns something other than 404
+          config: 'baseUrl=http://localhost:5000'
+          wait-on: 'http://localhost:5000, http://localhost:8081/logout'
+          wait-on-timeout: 120
           browser: chrome
           headless: true
           working-directory: e2e
-          # group: 'Web browser tests'
-          # record: true
-          config: 'baseUrl=http://localhost:5000'
-        # env:
-        #   CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          group: 'UI - Chrome'
+          record: true
+        env:
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+
+      - name: 'UI Tests - Chrome - Mobile'
+        uses: cypress-io/github-action@v2
+        with:
+          config: 'viewportWidth=375,viewportHeight=812,baseUrl=http://localhost:5000'
+          wait-on: 'http://localhost:5000, http://localhost:8081/logout'
+          wait-on-timeout: 120
+          working-directory: e2e
+          browser: chrome
+          headless: true
+          record: true
+          group: 'UI - Chrome - Mobile'
+        env:
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
 
   # deploy:
   #   name: Deploy to gh-pages

@@ -7,6 +7,8 @@
 //         cy.visit('/exodus/')
 //     })
 
+//     it('greets with Create Account', () => { })
+
 //     it('registers new user', () => { })
 
 //     it('does not register new user with already registered phone number', () => { })
