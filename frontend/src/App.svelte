@@ -2,6 +2,7 @@
   // import TailwindCss from "./TailwindCss.svelte";
   import RawCharts from "./charts/RawCharts.svelte";
   import StackedBar from "./charts/StackedBar.svelte"
+  import StackedBar2 from './charts/StackedBar2.svelte';
 
   const data = [
     {
@@ -41,6 +42,7 @@
     {#each data as bar}
       <StackedBar title={bar.name} current={bar.currMonth} previous={bar.prevMonth} limit={bar.limit}/>
     {/each}
+    <StackedBar2 />
   </section>
 </main>
 
