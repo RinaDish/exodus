@@ -26,9 +26,9 @@ jobs:
           headless: true
           working-directory: tests
           group: 'UI - Chrome'
-          record: true
-        env:
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+        #   record: true
+        # env:
+        #   CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
 
   # restart-server:
   #   name: Connect with SSH and Restart Server
