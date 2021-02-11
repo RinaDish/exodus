@@ -3,6 +3,7 @@
   import RawCharts from "./charts/RawCharts.svelte";
   import StackedBar from "./charts/StackedBar.svelte"
   import StackedBar2 from './charts/StackedBar2.svelte';
+  import Bars from './charts/Bars.svelte';
 
   const data = [
     {
@@ -30,7 +31,7 @@
 
 </script>
 
-<img src="https://i.kym-cdn.com/entries/icons/square/000/002/242/New_duane.gif" alt="Duane!" />
+<!-- <img src="https://i.kym-cdn.com/entries/icons/square/000/002/242/New_duane.gif" alt="Duane!" /> -->
 
 <!-- <TailwindCss /> -->
 <main>
@@ -38,11 +39,12 @@
   <h1 class="font-black italic tracking-wide text-indigo-600 text-5xl">SOBAKA,</h1>
   <h1 class="font-black italic tracking-wide text-5xl">SMOTRI:</h1> -->
   <section class="container">
-    <RawCharts />
+    <!-- <RawCharts /> -->
     {#each data as bar}
       <StackedBar title={bar.name} current={bar.currMonth} previous={bar.prevMonth} limit={bar.limit}/>
     {/each}
     <StackedBar2 />
+    <Bars />
   </section>
 </main>
 
