@@ -1,25 +1,26 @@
 <script>
+
 const data = {
         title: 'Taxi',
         maxValue: 1800,
         bars: [
             {
                 value: 1500,
-                // background: '#83C6FA',
-                // limits: ['b', 'r', 'y']
+                background: '#83C6FA',
+                limits: ['b', 'r', 'y']
             },
             {
                 value: 1200,
                 labelActivation: 'hover',
-                // background: '#92D6A3',
-                // limits: ['b', 'r', 'y']
+                background: '#92D6A3',
+                limits: ['b', 'r', 'y']
                 
             },
             {
                 value: 800,
                 labelActivation: 'hover',
                 background: '#A597EC',
-                // limits: ['b', 'r', 'y']
+                limits: ['b', 'r', 'y']
             },
             {
                 value: 400,
@@ -63,7 +64,7 @@ const data = {
 
     <section class='bars'>
         {#each data.bars as bar, i}
-            <div class="bar--wrapper" data-index={i+1}>
+            <div class="bar--wrapper" data-index={i+1} class:upperLayer={i === data.bars.length - 1}>
                 <div class='bar' style='width: {percentOf(bar.value)}%'>
                     <div class="bar--value" style='background: {bar.background}' data-label={bar.labelPosition}><span class='label'>{bar.label ? bar.label.replace('${value}', bar.value) : ''}</span></div>
                 </div>
@@ -71,7 +72,13 @@ const data = {
                     {#each data.limits as limit}
                         {#if bar.limits && bar.limits.indexOf(limit.name) > -1}
                             <div class='limit' data-overlap={limit.value < bar.value} data-name={limit.name} style='left: {limit.value > bar.value ? percentOf(bar.value) : percentOf(limit.value)}%; border-color: {limit.color}; width: {limit.value > bar.value ? percentOf(limit.value - bar.value) : limit.value < bar.value ? percentOf(bar.value - limit.value): 0}%'>
-                                <div class="limit-core"></div>
+                                <div class="limit-core">
+                                    {#if limit.value > bar.value}
+                                        <div class='remaining-wrap' style='border-color: {bar.background};'>
+                                            <div class="remaining" data-value='${limit.value - bar.value}' style='border-color: {bar.background};'></div>
+                                        </div>
+                                    {/if}
+                                </div>
                             </div>
                         {/if}
                     {/each}
@@ -134,14 +141,19 @@ const data = {
     .limits {
         height: 100%;
         width: 100%;
+        visibility: hidden;
+    }
+
+    .bar--wrapper.upperLayer > .limits {
+        visibility: visible;
     }
 
     .limit {
         position: absolute;
-        top: .5em;
+        top: .75em;
         width: 0;
         border-right: 3px solid transparent;
-        height: calc(100% - 1em);
+        height: calc(100% - 1.5em);
 
         display: flex;
         align-items: center;
@@ -155,7 +167,6 @@ const data = {
     .limit-core {
         width: 100%;
         height: 2em;
-
     }
 
     .limit[data-overlap='true'] > .limit-core {
@@ -167,6 +178,39 @@ const data = {
         #11111300 10px,
         #11111300 20px);
         opacity: .6;
+    }
+
+    .remaining-wrap {
+        display: flex;
+        height: 1em;
+        margin: .5em .2em;
+        border-left: 2px solid transparent;
+        border-right: 2px solid transparent;
+        visibility: hidden;
+    }
+
+    .remaining {
+        height: 0px;
+        width: 100%;
+        border-top: 2px dashed transparent;
+        margin-top: calc(.5em - 1px);
+        display: flex;
+        justify-content: center;
+    }
+
+    .remaining::after {
+        content: attr(data-value);
+        position: absolute;
+        height: 2em;
+        display: flex;
+        align-items: center;
+        font-weight: bold;
+        top: -.1em;
+        font-family: monospace;
+    }
+
+    .limit[data-overlap='false']:hover > .limit-core > .remaining-wrap {
+        visibility: visible;
     }
 
     .label {
