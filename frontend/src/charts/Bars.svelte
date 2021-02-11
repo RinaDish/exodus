@@ -5,21 +5,21 @@ const data = {
         bars: [
             {
                 value: 1500,
-                background: '#83C6FA',
-                limits: ['b', 'r', 'y']
+                // background: '#83C6FA',
+                // limits: ['b', 'r', 'y']
             },
             {
                 value: 1200,
                 labelActivation: 'hover',
-                background: '#92D6A3',
-                limits: ['b', 'r', 'y']
+                // background: '#92D6A3',
+                // limits: ['b', 'r', 'y']
                 
             },
             {
                 value: 800,
                 labelActivation: 'hover',
                 background: '#A597EC',
-                limits: ['b', 'r', 'y']
+                // limits: ['b', 'r', 'y']
             },
             {
                 value: 400,
@@ -39,12 +39,12 @@ const data = {
             },
             {
                 name: 'r',
-                value: 1000,
+                value: 700,
                 color: 'red'
             },
             {
                 name: 'y',
-                value: 700,
+                value: 200,
                 color: 'yellow'
             }
         ]
@@ -145,6 +145,7 @@ const data = {
 
         display: flex;
         align-items: center;
+        box-sizing: border-box;
     }
     .limit[data-overlap='true'] {
         border-right: none;
@@ -159,6 +160,13 @@ const data = {
 
     .limit[data-overlap='true'] > .limit-core {
         border-radius: 0 .5em .5em 0;
+        background: repeating-linear-gradient(
+        45deg,
+        #ff000060,
+        #ff000060 10px,
+        #11111300 10px,
+        #11111300 20px);
+        opacity: .6;
     }
 
     .label {
@@ -167,6 +175,8 @@ const data = {
         padding: 0 .5em;
         align-items: center;
         font-family: monospace;
+        line-height: 2em;
+        font-weight: bold;
     }
 
     .bar--value {
