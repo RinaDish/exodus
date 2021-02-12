@@ -1,4 +1,7 @@
 <script>
+import { onMount } from "svelte";
+
+
 
 const data = {
         title: 'Taxi',
@@ -41,12 +44,15 @@ const data = {
             {
                 name: 'b',
                 value: 1300,
-                color: '#777777'
+                color: '#777777',
+                visible: 'hover'
             },
             {
                 name: 'r',
                 value: 700,
-                color: '#FF778D'
+                color: '#FF778D',
+                visible: 'hover',
+                // visible: 'static'
             },
             {
                 name: 'y',
@@ -55,6 +61,12 @@ const data = {
             }
         ]
     }
+
+    // onMount(() => {
+    //     setTimeout(() => {
+    //         data.limits[data.limits.length - 1].value = 1500;
+    //     }, 1000)
+    // })
 
     const percentOf = (v) => v * 100 / data.maxValue;
     let isDetailed = false;
@@ -85,7 +97,7 @@ const data = {
                             <div class='limit' data-overlap={limit.value < bar.value} data-name={limit.name} style='{styledZIndex(limit.value < bar.value, limI)}; left: {limit.value > bar.value ? percentOf(bar.value) : percentOf(limit.value)}%; border-color: {limit.color}; width: {limit.value > bar.value ? percentOf(limit.value - bar.value) : limit.value < bar.value ? percentOf(bar.value - limit.value): 0}%'>
                                 <div class="limit-core" style='{limit.value < bar.value ? styledOverlap(limit.color, bar.background) : ''}'>
                                     {#if limit.value > bar.value}
-                                        <div class='remaining-wrap' style='border-color: {bar.background};'>
+                                        <div class='remaining-wrap {limit.visible}' style='border-color: {bar.background};'>
                                             <div class="remaining" data-value='${limit.value - bar.value}' style='border-color: {bar.background};'></div>
                                         </div>
                                     {/if}
@@ -180,6 +192,8 @@ const data = {
         display: flex;
         align-items: center;
         box-sizing: border-box;
+
+        transition: left .3s, width .3s;
     }
     .limit[data-overlap='true'] {
         border-right: none;
@@ -231,7 +245,8 @@ const data = {
         font-family: monospace;
     }
 
-    .limit[data-overlap='false']:hover > .limit-core > .remaining-wrap {
+    .limit[data-overlap='false']:hover > .limit-core > .remaining-wrap.hover,
+    .remaining-wrap.static {
         visibility: visible;
     }
 
