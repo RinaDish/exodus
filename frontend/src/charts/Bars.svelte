@@ -7,12 +7,16 @@ const data = {
             {
                 value: 1500,
                 background: '#83C6FA',
+                labelPosition: 'in-right',
+                detailedLabel: 'previous-previous-previous: $${value}',
                 limits: ['b', 'r', 'y']
             },
             {
                 value: 1200,
                 labelActivation: 'hover',
                 background: '#92D6A3',
+                labelPosition: 'in-right',
+                detailedLabel: 'previous-previous: $${value}',
                 limits: ['b', 'r', 'y']
                 
             },
@@ -20,14 +24,15 @@ const data = {
                 value: 800,
                 labelActivation: 'hover',
                 background: '#A597EC',
+                labelPosition: 'in-right',
+                detailedLabel: 'previous: $${value}',
                 limits: ['b', 'r', 'y']
             },
             {
                 value: 400,
                 labelPosition: 'in-right',
                 label: '$${value}',
-                overlap: 'red',
-                remaining: 'green',
+                detailedLabel: 'current: $${value}',
                 background: '#F2A68B',
                 limits: ['b', 'r', 'y']
             }
@@ -35,28 +40,31 @@ const data = {
         limits: [
             {
                 name: 'b',
-                value: 1500,
-                color: 'black'
+                value: 1300,
+                color: '#777777'
             },
             {
                 name: 'r',
                 value: 700,
-                color: 'red'
+                color: '#FF778D'
             },
             {
                 name: 'y',
                 value: 200,
-                color: 'yellow'
+                color: '#F5BD77'
             }
         ]
     }
 
     const percentOf = (v) => v * 100 / data.maxValue;
+    let isDetailed = false;
 
+    const styledOverlap = (c, b) => `background: repeating-linear-gradient(45deg, ${c}, ${c} 10px, ${b} 10px, ${b} 20px);`
+    const styledZIndex = (isOverlap, index) => isOverlap ? `z-index: ${100 - index}` : '';
 
 </script>
 
-<div class='wrapper'>
+<div class='wrapper' on:dblclick={() => isDetailed = !isDetailed}>
 
     <section class='bar-placeholder'>
         <div class='bar--placeholder'></div>
@@ -64,15 +72,18 @@ const data = {
 
     <section class='bars'>
         {#each data.bars as bar, i}
-            <div class="bar--wrapper" data-index={i+1} class:upperLayer={i === data.bars.length - 1}>
+            <div class="bar--wrapper" class:detailed={isDetailed} style='top: {isDetailed ? i * 60: 0}%' data-index={i+1} class:upperLayer={i === data.bars.length - 1}>
                 <div class='bar' style='width: {percentOf(bar.value)}%'>
-                    <div class="bar--value" style='background: {bar.background}' data-label={bar.labelPosition}><span class='label'>{bar.label ? bar.label.replace('${value}', bar.value) : ''}</span></div>
+                    <div class="bar--value" style='background: {bar.background}' data-label={bar.labelPosition}>
+                        <span class='label'>{bar.label ? bar.label.replace('${value}', bar.value) : ''}</span>
+                        <span class='label--detailed'>{bar.detailedLabel ? bar.detailedLabel.replace('${value}', bar.value) : ''}</span>
+                    </div>
                 </div>
                 <div class="limits">
-                    {#each data.limits as limit}
+                    {#each data.limits as limit, limI}
                         {#if bar.limits && bar.limits.indexOf(limit.name) > -1}
-                            <div class='limit' data-overlap={limit.value < bar.value} data-name={limit.name} style='left: {limit.value > bar.value ? percentOf(bar.value) : percentOf(limit.value)}%; border-color: {limit.color}; width: {limit.value > bar.value ? percentOf(limit.value - bar.value) : limit.value < bar.value ? percentOf(bar.value - limit.value): 0}%'>
-                                <div class="limit-core">
+                            <div class='limit' data-overlap={limit.value < bar.value} data-name={limit.name} style='{styledZIndex(limit.value < bar.value, limI)}; left: {limit.value > bar.value ? percentOf(bar.value) : percentOf(limit.value)}%; border-color: {limit.color}; width: {limit.value > bar.value ? percentOf(limit.value - bar.value) : limit.value < bar.value ? percentOf(bar.value - limit.value): 0}%'>
+                                <div class="limit-core" style='{limit.value < bar.value ? styledOverlap(limit.color, bar.background) : ''}'>
                                     {#if limit.value > bar.value}
                                         <div class='remaining-wrap' style='border-color: {bar.background};'>
                                             <div class="remaining" data-value='${limit.value - bar.value}' style='border-color: {bar.background};'></div>
@@ -94,6 +105,7 @@ const data = {
     .wrapper {
         position: relative;
         width: 100%;
+        user-select: none;
     }
 
     .bar-placeholder {
@@ -123,6 +135,11 @@ const data = {
         position: absolute;
         height: 100%;
         width: 100%;
+        transition: top .3s;
+    }
+
+    .bar--wrapper:not([data-index='1']) {
+        /* margin-top: -1em; */
     }
 
     .bar {
@@ -144,8 +161,13 @@ const data = {
         visibility: hidden;
     }
 
-    .bar--wrapper.upperLayer > .limits {
+    .bar--wrapper.upperLayer > .limits,
+    .bar--wrapper.detailed > .limits {
         visibility: visible;
+    }
+
+    .bar--wrapper.detailed > .limits > .limit[data-overlap='false'] {
+        box-sizing: content-box;
     }
 
     .limit {
@@ -171,13 +193,12 @@ const data = {
 
     .limit[data-overlap='true'] > .limit-core {
         border-radius: 0 .5em .5em 0;
-        background: repeating-linear-gradient(
+        /* background: repeating-linear-gradient(
         45deg,
-        #ff000060,
-        #ff000060 10px,
+        #ff0000,
+        #ff0000 10px,
         #11111300 10px,
-        #11111300 20px);
-        opacity: .6;
+        #11111300 20px); */
     }
 
     .remaining-wrap {
@@ -187,6 +208,7 @@ const data = {
         border-left: 2px solid transparent;
         border-right: 2px solid transparent;
         visibility: hidden;
+        z-index: 100;
     }
 
     .remaining {
@@ -213,7 +235,8 @@ const data = {
         visibility: visible;
     }
 
-    .label {
+    .label,
+    .label--detailed {
         height: 2em;
         display: flex;
         padding: 0 .5em;
@@ -221,6 +244,17 @@ const data = {
         font-family: monospace;
         line-height: 2em;
         font-weight: bold;
+        z-index: 200;
+    }
+
+    .label--detailed,
+    .bar--wrapper.detailed > .bar > .bar--value > .label {
+        display: none;
+    }
+
+
+    .bar--wrapper.detailed > .bar > .bar--value > .label--detailed {
+        display: block;
     }
 
     .bar--value {
@@ -228,11 +262,13 @@ const data = {
         align-items: center;
     }
 
-    .bar--value[data-label*='out-bottom'] > .label {
+    .bar--value[data-label*='out-bottom'] > .label,
+    .bar--value[data-label*='out-bottom'] > .label--detailed {
         margin-top: 3.4em;
     }
 
-    .bar--value[data-label*='out-top'] > .label {
+    .bar--value[data-label*='out-top'] > .label,
+    .bar--value[data-label*='out-top'] > .label--detailed {
         margin-top: -3.4em;
     }
 
