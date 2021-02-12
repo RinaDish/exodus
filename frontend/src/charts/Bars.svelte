@@ -2,36 +2,37 @@
 import { onMount } from "svelte";
 
 const data = {
-        title: 'Taxi',
         maxValue: 1800,
+        conf: {
+            detailedSpace: 70,
+        },
         bars: [
-            {
-                value: 1500,
-                background: '#83C6FA',
-                labelPosition: 'in-right',
-                detailedLabel: 'previous-previous-previous: $${value}',
-                limits: ['b', 'r', 'y']
-            },
+            // {
+            //     value: 1500,
+            //     background: '#83C6FA',
+            //     labelPosition: 'in-left',
+            //     detailedLabel: 'previous-previous-previous: $${value}',
+            //     // limits: ['b', 'r', 'y']
+            // },
             {
                 value: 1200,
                 labelActivation: 'hover',
                 background: '#92D6A3',
-                labelPosition: 'in-right',
+                labelPosition: 'in-left',
                 detailedLabel: 'previous-previous: $${value}',
-                limits: ['b', 'r']
-                
+                limits: ['b', 'y']
             },
             {
                 value: 800,
                 labelActivation: 'hover',
                 background: '#A597EC',
-                labelPosition: 'in-right',
+                labelPosition: 'in-left',
                 detailedLabel: 'previous: $${value}',
                 limits: ['b', 'r', 'y']
             },
             {
                 value: 400,
-                labelPosition: 'in-right',
+                labelPosition: 'in-left',
                 label: '$${value}',
                 detailedLabel: 'current: $${value}',
                 background: '#F2A68B',
@@ -39,26 +40,27 @@ const data = {
             }
         ],
         limits: [
-            {
-                name: 'b',
-                value: 1300,
-                color: '#777777',
-                visible: 'hover',
-                overlapStyle: 'stripes'
-            },
-            {
-                name: 'r',
-                value: 700,
-                color: '#FF778D',
-                visible: 'hover',
-                overlapStyle: 'stripes',
-                // visible: 'static'
-            },
+            // {
+            //     name: 'b',
+            //     value: 1300,
+            //     color: '#777777',
+            //     visible: 'hover',
+            //     overlapStyle: 'stripes'
+            // },
+            // {
+            //     name: 'r',
+            //     value: 700,
+            //     color: '#FF2222',
+            //     // visible: 'hover',
+            //     overlapStyle: 'stripes',
+            //     // visible: 'static'
+            // },
             {
                 name: 'y',
-                value: 200,
-                color: '#F5BD77',
-                overlapStyle: 'stripes'
+                value: 100,
+                color: '#ff6666',
+                overlapStyle: 'stripes',
+                visible: 'static'
             }
         ]
     }
@@ -68,6 +70,8 @@ const data = {
     //         data.limits[data.limits.length - 1].value = 300;
     //     }, 1000)
     // })
+
+    let limits, wrapper;
 
     const percentOf = (v) => v * 100 / data.maxValue;
     let isDetailed = false;
@@ -81,9 +85,35 @@ const data = {
     const styledBarWidth = (bar, limit) => limit.value > bar.value ? percentOf(limit.value - bar.value) : limit.value < bar.value ? percentOf(bar.value - limit.value): 0
     const styledBarLeft = (bar, limit) => limit.value > bar.value ? percentOf(bar.value) : percentOf(limit.value);
 
+    const move = (limit) => (e) => {
+        const node = e.target;
+        node.classList.add('moveable');
+        wrapper.classList.add('moveable');
+        e.stopPropagation();
+
+        const handleMove = (e) => {
+            const limitsRect = limits.getBoundingClientRect();
+            const movePercent = Math.round((e.clientX - limitsRect.left) * 100 / limitsRect.width);
+            if (movePercent >= 0 && movePercent <= 100) {
+                limit.value = Math.round(movePercent * data.maxValue / 100);
+                data = data;
+            }
+
+        }
+
+        const handleEnd = (e) => {
+            node.classList.remove('moveable');
+            wrapper.classList.remove('moveable');
+            window.removeEventListener('mousemove', handleMove);
+        }
+
+        window.addEventListener('mouseup', handleEnd)
+        window.addEventListener('mousemove', handleMove)
+    }
+
 </script>
 
-<div class='wrapper' on:mouseup={() => isDetailed = !isDetailed}>
+<div class='wrapper' bind:this={wrapper} class:moveable={false} on:mousedown={() => isDetailed = !isDetailed}>
 
     <section class='bar-placeholder'>
         <div class='bar--placeholder'></div>
@@ -91,24 +121,25 @@ const data = {
 
     <section class='bars'>
         {#each data.bars as bar, i}
-            <div class="bar--wrapper" class:detailed={isDetailed} style='top: {isDetailed ? i * 60: 0}%' data-index={i+1} class:upperLayer={i === data.bars.length - 1}>
+            <div class="bar--wrapper" class:detailed={isDetailed} style='top: {isDetailed ? i * data.conf.detailedSpace : 0}%' data-index={i+1} class:upperLayer={i === data.bars.length - 1}>
                 <div class='bar' style='width: {percentOf(bar.value)}%'>
                     <div class="bar--value" style='background: {bar.background}' data-label={bar.labelPosition}>
                         <span class='label'>{bar.label ? bar.label.replace('${value}', bar.value) : ''}</span>
                         <span class='label--detailed'>{bar.detailedLabel ? bar.detailedLabel.replace('${value}', bar.value) : ''}</span>
                     </div>
                 </div>
-                <div class="limits">
+                <div class="limits" bind:this={limits}>
                     {#each data.limits as limit, limI}
                         {#if bar.limits && bar.limits.indexOf(limit.name) > -1}
                             <div class='limit' data-overlap={limit.value < bar.value} data-name={limit.name} style='{styledZIndex(limit.value < bar.value, limI)}; left: {styledBarLeft(bar, limit)}%; border-color: {limit.color}; width: {styledBarWidth(bar, limit)}%'>
                                 <div class="limit-core" style='{limit.value < bar.value ? styledOverlap(limit.color, bar.background, limit.overlapStyle) : ''}'>
                                     {#if limit.value > bar.value}
                                         <div class='remaining-wrap {limit.visible}' style='border-color: {bar.background};'>
-                                            <div class="remaining" data-value='${limit.value - bar.value}' style='border-color: {bar.background};'></div>
+                                            <div class="remaining" class:headless={limit.value - bar.value < 100} data-value='${limit.value - bar.value}' style='border-color: {bar.background};'></div>
                                         </div>
                                     {/if}
                                 </div>
+                                <div class='limit-handle' style='background: {limit.color};' data-value='{limit.value}' on:mousedown={move(limit)}></div>
                             </div>
                         {/if}
                     {/each}
@@ -168,6 +199,7 @@ const data = {
         height: 2em;
         margin: 1em 0;
         border-radius: .5em;
+        transition: width .3s;
     }
 
     .limits {
@@ -184,7 +216,7 @@ const data = {
     .bar--wrapper > .limits > .limit[data-overlap='false'] {
         box-sizing: content-box;
     }
-
+    
     .limit {
         position: absolute;
         top: .75em;
@@ -198,6 +230,11 @@ const data = {
 
         transition: left .3s, width .3s;
     }
+
+    .wrapper.moveable .limit {
+        transition: all 0s;
+    }
+
     .limit[data-overlap='true'] {
         border-right: none;
         border-left: 3px solid transparent;
@@ -210,6 +247,34 @@ const data = {
 
     .limit[data-overlap='true'] > .limit-core {
         border-radius: 0 .5em .5em 0;
+    }
+
+    .limit-handle {
+        position: absolute;
+        right: -.55em;
+        border-radius: 2px;
+        width: 0;
+        height: 100%;
+        transition: width .1s;
+        cursor: move;
+    }
+
+    .limit-handle.moveable::after {
+        content: attr(data-value);
+        font-family: monospace;
+        font-weight: bold;
+        top: -1em;
+        position: absolute;
+        z-index: 100;
+        left: -.1em
+    }
+    .limit[data-overlap='true'] > .limit-handle {
+        left: -.6em;
+    }
+
+    .bar--wrapper.upperLayer > .limits > .limit:hover  > .limit-handle,
+    .limit-handle.moveable {
+        width: 1em;
     }
 
     .remaining-wrap {
@@ -231,7 +296,7 @@ const data = {
         justify-content: center;
     }
 
-    .remaining::after {
+    .remaining:not(.headless)::after {
         content: attr(data-value);
         position: absolute;
         height: 2em;
@@ -243,7 +308,8 @@ const data = {
     }
 
     .limit[data-overlap='false']:hover > .limit-core > .remaining-wrap.hover,
-    .remaining-wrap.static {
+    .bar--wrapper.upperLayer .remaining-wrap.static,
+    .bar--wrapper.detailed .remaining-wrap.static {
         visibility: visible;
     }
 
