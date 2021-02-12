@@ -20,7 +20,7 @@ const data = {
                 background: '#92D6A3',
                 labelPosition: 'in-right',
                 detailedLabel: 'previous-previous: $${value}',
-                limits: ['b', 'r', 'y']
+                limits: ['b', 'r']
                 
             },
             {
@@ -67,7 +67,7 @@ const data = {
 
     // onMount(() => {
     //     setTimeout(() => {
-    //         data.limits[data.limits.length - 1].value = 1500;
+    //         data.limits[data.limits.length - 1].value = 300;
     //     }, 1000)
     // })
 
@@ -83,7 +83,7 @@ const data = {
 
 </script>
 
-<div class='wrapper' on:dblclick={() => isDetailed = !isDetailed}>
+<div class='wrapper' on:mouseup={() => isDetailed = !isDetailed}>
 
     <section class='bar-placeholder'>
         <div class='bar--placeholder'></div>
@@ -185,7 +185,7 @@ const data = {
         visibility: visible;
     }
 
-    .bar--wrapper.detailed > .limits > .limit[data-overlap='false'] {
+    .bar--wrapper > .limits > .limit[data-overlap='false'] {
         box-sizing: content-box;
     }
 
