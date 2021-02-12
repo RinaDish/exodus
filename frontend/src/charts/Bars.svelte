@@ -20,7 +20,7 @@ const data = {
                 background: '#92D6A3',
                 labelPosition: 'in-left',
                 detailedLabel: 'previous-previous: $${value}',
-                limits: ['b', 'y']
+                limits: ['y']
             },
             {
                 value: 800,
@@ -28,15 +28,15 @@ const data = {
                 background: '#A597EC',
                 labelPosition: 'in-left',
                 detailedLabel: 'previous: $${value}',
-                limits: ['b', 'r', 'y']
+                limits: ['r']
             },
             {
-                value: 400,
+                value: 600,
                 labelPosition: 'in-left',
                 label: '$${value}',
                 detailedLabel: 'current: $${value}',
                 background: '#F2A68B',
-                limits: ['b', 'r', 'y']
+                limits: ['y']
             }
         ],
         limits: [
@@ -47,17 +47,17 @@ const data = {
             //     visible: 'hover',
             //     overlapStyle: 'stripes'
             // },
-            // {
-            //     name: 'r',
-            //     value: 700,
-            //     color: '#FF2222',
-            //     // visible: 'hover',
-            //     overlapStyle: 'stripes',
-            //     // visible: 'static'
-            // },
+            {
+                name: 'r',
+                value: 700,
+                color: '#FF2222',
+                // visible: 'hover',
+                overlapStyle: 'stripes',
+                visible: 'static'
+            },
             {
                 name: 'y',
-                value: 100,
+                value: 300,
                 color: '#ff6666',
                 overlapStyle: 'stripes',
                 visible: 'static'
@@ -230,11 +230,9 @@ const data = {
         width: 0;
         border-right: 3px solid transparent;
         height: calc(100% - 1.5em);
-
         display: flex;
         align-items: center;
         box-sizing: border-box;
-
         transition: left .3s, width .3s;
     }
 
@@ -262,7 +260,7 @@ const data = {
         border-radius: 2px;
         width: 0;
         height: 100%;
-        transition: width .1s;
+        transition: all .1s;
         cursor: move;
     }
 
@@ -272,14 +270,14 @@ const data = {
         font-weight: bold;
         top: -1em;
         position: absolute;
-        z-index: 100;
+        z-index: 300;
         left: -.1em
     }
     .limit[data-overlap='true'] > .limit-handle {
         left: -.6em;
     }
 
-    .bar--wrapper.upperLayer > .limits > .limit:hover  > .limit-handle,
+    .limits > .limit:hover  > .limit-handle,
     .limit-handle.moveable {
         width: 1em;
     }
