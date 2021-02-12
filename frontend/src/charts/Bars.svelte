@@ -45,19 +45,22 @@ const data = {
                 name: 'b',
                 value: 1300,
                 color: '#777777',
-                visible: 'hover'
+                visible: 'hover',
+                overlapStyle: 'stripes'
             },
             {
                 name: 'r',
                 value: 700,
                 color: '#FF778D',
                 visible: 'hover',
+                overlapStyle: 'stripes',
                 // visible: 'static'
             },
             {
                 name: 'y',
                 value: 200,
-                color: '#F5BD77'
+                color: '#F5BD77',
+                overlapStyle: 'stripes'
             }
         ]
     }
@@ -71,7 +74,11 @@ const data = {
     const percentOf = (v) => v * 100 / data.maxValue;
     let isDetailed = false;
 
-    const styledOverlap = (c, b) => `background: repeating-linear-gradient(45deg, ${c}, ${c} 10px, ${b} 10px, ${b} 20px);`
+    const styledOverlap = (c, b, style) => {
+        if (style == 'stripes')
+            return `background: repeating-linear-gradient(45deg, ${c}, ${c} 10px, ${b} 10px, ${b} 20px);`
+        return `background: ${c}`;
+    }
     const styledZIndex = (isOverlap, index) => isOverlap ? `z-index: ${100 - index}` : '';
 
 </script>
@@ -95,7 +102,7 @@ const data = {
                     {#each data.limits as limit, limI}
                         {#if bar.limits && bar.limits.indexOf(limit.name) > -1}
                             <div class='limit' data-overlap={limit.value < bar.value} data-name={limit.name} style='{styledZIndex(limit.value < bar.value, limI)}; left: {limit.value > bar.value ? percentOf(bar.value) : percentOf(limit.value)}%; border-color: {limit.color}; width: {limit.value > bar.value ? percentOf(limit.value - bar.value) : limit.value < bar.value ? percentOf(bar.value - limit.value): 0}%'>
-                                <div class="limit-core" style='{limit.value < bar.value ? styledOverlap(limit.color, bar.background) : ''}'>
+                                <div class="limit-core" style='{limit.value < bar.value ? styledOverlap(limit.color, bar.background, limit.overlapStyle) : ''}'>
                                     {#if limit.value > bar.value}
                                         <div class='remaining-wrap {limit.visible}' style='border-color: {bar.background};'>
                                             <div class="remaining" data-value='${limit.value - bar.value}' style='border-color: {bar.background};'></div>
