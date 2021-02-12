@@ -71,10 +71,17 @@ const data = {
     //     }, 1000)
     // })
 
-    let limits, wrapper;
+    let limits, wrapper, currentBar;
 
     const percentOf = (v) => v * 100 / data.maxValue;
     let isDetailed = false;
+
+    const isSmallEnough = (limits, value) => {
+        if (limits) {
+            const barRect = limits.getBoundingClientRect();
+            return percentOf(value) * barRect.width / 100 < 60;
+        }
+    };
 
     const styledOverlap = (c, b, style) => {
         if (style == 'stripes')
@@ -123,7 +130,7 @@ const data = {
         {#each data.bars as bar, i}
             <div class="bar--wrapper" class:detailed={isDetailed} style='top: {isDetailed ? i * data.conf.detailedSpace : 0}%' data-index={i+1} class:upperLayer={i === data.bars.length - 1}>
                 <div class='bar' style='width: {percentOf(bar.value)}%'>
-                    <div class="bar--value" style='background: {bar.background}' data-label={bar.labelPosition}>
+                    <div class="bar--value" bind:this={currentBar} class:hiddenValue={isSmallEnough(limits, bar.value)} style='background: {bar.background}' data-label={bar.labelPosition}>
                         <span class='label'>{bar.label ? bar.label.replace('${value}', bar.value) : ''}</span>
                         <span class='label--detailed'>{bar.detailedLabel ? bar.detailedLabel.replace('${value}', bar.value) : ''}</span>
                     </div>
@@ -325,13 +332,15 @@ const data = {
         z-index: 200;
     }
 
+    .bar--value.hiddenValue > .label,
+    .bar--value.hiddenValue > .label--detailed,
     .label--detailed,
     .bar--wrapper.detailed > .bar > .bar--value > .label {
         display: none;
     }
 
 
-    .bar--wrapper.detailed > .bar > .bar--value > .label--detailed {
+    .bar--wrapper.detailed > .bar > .bar--value:not(.hiddenValue) > .label--detailed {
         display: block;
     }
 
@@ -340,6 +349,17 @@ const data = {
         align-items: center;
     }
 
+    
+    .bar--wrapper:not(.detailed) > .bar > .bar--value.hiddenValue:hover > .label,
+    .bar--wrapper.detailed > .bar > .bar--value.hiddenValue:hover > .label--detailed {
+        white-space: nowrap;
+        display: inline;
+        background-color: inherit;
+        border-radius: .5em .5em .5em 0;
+        top: -1em;
+        position: relative;
+        /* opacity: .8; */
+    }
     .bar--value[data-label*='out-bottom'] > .label,
     .bar--value[data-label*='out-bottom'] > .label--detailed {
         margin-top: 3.4em;
