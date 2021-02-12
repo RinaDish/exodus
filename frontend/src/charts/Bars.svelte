@@ -1,8 +1,6 @@
 <script>
 import { onMount } from "svelte";
 
-
-
 const data = {
         title: 'Taxi',
         maxValue: 1800,
@@ -80,6 +78,8 @@ const data = {
         return `background: ${c}`;
     }
     const styledZIndex = (isOverlap, index) => isOverlap ? `z-index: ${100 - index}` : '';
+    const styledBarWidth = (bar, limit) => limit.value > bar.value ? percentOf(limit.value - bar.value) : limit.value < bar.value ? percentOf(bar.value - limit.value): 0
+    const styledBarLeft = (bar, limit) => limit.value > bar.value ? percentOf(bar.value) : percentOf(limit.value);
 
 </script>
 
@@ -101,7 +101,7 @@ const data = {
                 <div class="limits">
                     {#each data.limits as limit, limI}
                         {#if bar.limits && bar.limits.indexOf(limit.name) > -1}
-                            <div class='limit' data-overlap={limit.value < bar.value} data-name={limit.name} style='{styledZIndex(limit.value < bar.value, limI)}; left: {limit.value > bar.value ? percentOf(bar.value) : percentOf(limit.value)}%; border-color: {limit.color}; width: {limit.value > bar.value ? percentOf(limit.value - bar.value) : limit.value < bar.value ? percentOf(bar.value - limit.value): 0}%'>
+                            <div class='limit' data-overlap={limit.value < bar.value} data-name={limit.name} style='{styledZIndex(limit.value < bar.value, limI)}; left: {styledBarLeft(bar, limit)}%; border-color: {limit.color}; width: {styledBarWidth(bar, limit)}%'>
                                 <div class="limit-core" style='{limit.value < bar.value ? styledOverlap(limit.color, bar.background, limit.overlapStyle) : ''}'>
                                     {#if limit.value > bar.value}
                                         <div class='remaining-wrap {limit.visible}' style='border-color: {bar.background};'>
@@ -157,10 +157,6 @@ const data = {
         transition: top .3s;
     }
 
-    .bar--wrapper:not([data-index='1']) {
-        /* margin-top: -1em; */
-    }
-
     .bar {
         height: 100%;
         position: absolute;
@@ -214,12 +210,6 @@ const data = {
 
     .limit[data-overlap='true'] > .limit-core {
         border-radius: 0 .5em .5em 0;
-        /* background: repeating-linear-gradient(
-        45deg,
-        #ff0000,
-        #ff0000 10px,
-        #11111300 10px,
-        #11111300 20px); */
     }
 
     .remaining-wrap {
